@@ -7,7 +7,8 @@ from .views import (
     ExerciseViewSet,
     WorkoutPlanViewSet,
     WorkoutExerciseViewSet,
-    WorkoutLogViewSet
+    WorkoutLogViewSet,
+    register_user,
 )
 
 router = DefaultRouter()
@@ -19,4 +20,5 @@ router.register('logs', WorkoutLogViewSet)
 
 urlpatterns = [
     path('', include(router.urls)),
+    path('auth/register/', register_user),
 ]
