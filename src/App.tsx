@@ -8,6 +8,7 @@ import WorkoutPlans from './components/WorkoutPlans';
 import WorkoutForm from './components/WorkoutForm';
 import WorkoutLog from './components/WorkoutLog';
 import WorkoutHistory from './components/WorkoutHistory';
+import NotFound from './components/NotFound';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 
 function AppContent() {
@@ -36,6 +37,7 @@ function AppContent() {
         <Route path="/workout-log" element={user ? <WorkoutLog /> : <Navigate to="/login" />} />
         <Route path="/workout-history" element={user ? <WorkoutHistory /> : <Navigate to="/login" />} />
         <Route path="/" element={<Navigate to={user ? "/dashboard" : "/login"} />} />
+	<Route path="*" element={<NotFound />} />
       </Routes>
     </>
   );
