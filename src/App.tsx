@@ -1,16 +1,14 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import Navbar from './components/Navbar';
-import Login from './components/Login';
-import Register from './components/Register';
+import Login from './Login';
+import Register from './Register';
 import Dashboard from './components/Dashboard';
 import WorkoutPlans from './components/WorkoutPlans';
 import WorkoutForm from './components/WorkoutForm';
 import WorkoutLog from './components/WorkoutLog';
 import WorkoutHistory from './components/WorkoutHistory';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
-import { ToastProvider } from './contexts/ToastContext';
-import Toast from './components/Toast';
 
 function AppContent() {
   const { user, loading } = useAuth();
@@ -18,7 +16,9 @@ function AppContent() {
   if (loading) {
     return (
       <div className="d-flex justify-content-center align-items-center min-vh-100">
-        <div className="loading-spinner"></div>
+        <div className="spinner-border text-primary" role="status">
+          <span className="visually-hidden">Loading...</span>
+        </div>
       </div>
     );
   }
@@ -37,7 +37,6 @@ function AppContent() {
         <Route path="/workout-history" element={user ? <WorkoutHistory /> : <Navigate to="/login" />} />
         <Route path="/" element={<Navigate to={user ? "/dashboard" : "/login"} />} />
       </Routes>
-      <Toast />
     </>
   );
 }
@@ -45,9 +44,7 @@ function AppContent() {
 function App() {
   return (
     <AuthProvider>
-      <ToastProvider>
-        <AppContent />
-      </ToastProvider>
+      <AppContent />
     </AuthProvider>
   );
 }
