@@ -1,15 +1,17 @@
 import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import Navbar from './components/Navbar';
-import Login from './Login';
-import Register from './Register';
-import Dashboard from './components/Dashboard';
-import WorkoutPlans from './components/WorkoutPlans';
-import WorkoutForm from './components/WorkoutForm';
-import WorkoutLog from './components/WorkoutLog';
-import WorkoutHistory from './components/WorkoutHistory';
 import NotFound from './components/NotFound';
-import { AuthProvider, useAuth } from './contexts/AuthContext';
+
+import Login from './auth/Login';
+import Register from './auth/Register';
+import { AuthProvider, useAuth } from './auth/AuthContext';
+
+import Dashboard from './dashboard/Dashboard';
+import WorkoutPlans from './workouts/WorkoutPlans';
+import WorkoutForm from './workouts/WorkoutForm';
+import WorkoutLog from './workouts/WorkoutLog';
+import WorkoutHistory from './workouts/WorkoutHistory';
 
 function AppContent() {
   const { user, loading } = useAuth();
@@ -36,8 +38,8 @@ function AppContent() {
         <Route path="/workout-plans/:id/edit" element={user ? <WorkoutForm /> : <Navigate to="/login" />} />
         <Route path="/workout-log" element={user ? <WorkoutLog /> : <Navigate to="/login" />} />
         <Route path="/workout-history" element={user ? <WorkoutHistory /> : <Navigate to="/login" />} />
-        <Route path="/" element={<Navigate to={user ? "/dashboard" : "/login"} />} />
-	<Route path="*" element={<NotFound />} />
+        <Route path="/" element={<Navigate to={user ? '/dashboard' : '/login'} />} />
+        <Route path="*" element={<NotFound />} />
       </Routes>
     </>
   );
