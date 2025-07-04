@@ -1,10 +1,10 @@
 import React, { useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { AuthContext } from './contexts/AuthContext';
+import { useAuth } from './AuthContext';
 
 const Register: React.FC = () => {
   const navigate = useNavigate();
-  const { register } = useContext(AuthContext);
+  const { register } = useAuth();
 
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');

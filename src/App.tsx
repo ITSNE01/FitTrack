@@ -1,5 +1,6 @@
 import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
+
 import Navbar from './components/Navbar';
 import NotFound from './components/NotFound';
 
@@ -16,6 +17,8 @@ import WorkoutHistory from './workouts/WorkoutHistory';
 function AppContent() {
   const { user, loading } = useAuth();
 
+  console.log("Auth state →", { user, loading });
+
   if (loading) {
     return (
       <div className="d-flex justify-content-center align-items-center min-vh-100">
@@ -29,15 +32,21 @@ function AppContent() {
   return (
     <>
       {user && <Navbar />}
+
       <Routes>
-        <Route path="/login" element={!user ? <Login /> : <Navigate to="/dashboard" />} />
-        <Route path="/register" element={!user ? <Register /> : <Navigate to="/dashboard" />} />
-        <Route path="/dashboard" element={user ? <Dashboard /> : <Navigate to="/login" />} />
-        <Route path="/workout-plans" element={user ? <WorkoutPlans /> : <Navigate to="/login" />} />
-        <Route path="/workout-plans/new" element={user ? <WorkoutForm /> : <Navigate to="/login" />} />
-        <Route path="/workout-plans/:id/edit" element={user ? <WorkoutForm /> : <Navigate to="/login" />} />
-        <Route path="/workout-log" element={user ? <WorkoutLog /> : <Navigate to="/login" />} />
-        <Route path="/workout-history" element={user ? <WorkoutHistory /> : <Navigate to="/login" />} />
+        {/* Public routes */}
+        {!user && <Route path="/login" element={<Login />} />}
+        {!user && <Route path="/register" element={<Register />} />}
+
+        {/* Protected routes */}
+        {user && <Route path="/dashboard" element={<Dashboard />} />}
+        {user && <Route path="/workout-plans" element={<WorkoutPlans />} />}
+        {user && <Route path="/workout-plans/new" element={<WorkoutForm />} />}
+        {user && <Route path="/workout-plans/:id/edit" element={<WorkoutForm />} />}
+        {user && <Route path="/workout-log" element={<WorkoutLog />} />}
+        {user && <Route path="/workout-history" element={<WorkoutHistory />} />}
+
+        {/* Redirection based on login status */}
         <Route path="/" element={<Navigate to={user ? '/dashboard' : '/login'} />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
