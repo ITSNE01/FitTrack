@@ -1,34 +1,40 @@
-import React, { useState, useContext } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useAuth } from './AuthContext';
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "./AuthContext";
 
-const Register: React.FC = () => {
+const Register = () => {
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+
   const navigate = useNavigate();
   const { register } = useAuth();
 
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState<string | null>(null);
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const success = await register(username, password);
-    if (success) {
-      navigate('/login');
-    } else {
-      setError('Registration failed. Try a different username.');
+    setError("");
+
+    try {
+      const success = await register(username, password);
+      if (success) {
+        navigate("/dashboard");
+      } else {
+        setError("Registration failed. Try again.");
+      }
+    } catch (err) {
+      setError("Something went wrong.");
     }
   };
 
   return (
-    <div className="container mt-5" style={{ maxWidth: '400px' }}>
-      <h2 className="mb-4 text-center">Create Your FitTrack Account</h2>
+    <div className="container mt-5">
+      <h2 className="text-center mb-4">Create an Account</h2>
       {error && <div className="alert alert-danger">{error}</div>}
+
       <form onSubmit={handleSubmit}>
         <div className="mb-3">
-          <label htmlFor="username" className="form-label">Username</label>
+          <label className="form-label">Username</label>
           <input
-            id="username"
             type="text"
             className="form-control"
             value={username}
@@ -36,10 +42,10 @@ const Register: React.FC = () => {
             required
           />
         </div>
+
         <div className="mb-3">
-          <label htmlFor="password" className="form-label">Password</label>
+          <label className="form-label">Password</label>
           <input
-            id="password"
             type="password"
             className="form-control"
             value={password}
@@ -47,7 +53,8 @@ const Register: React.FC = () => {
             required
           />
         </div>
-        <button type="submit" className="btn btn-success w-100">Register</button>
+
+        <button type="submit" className="btn btn-primary w-100">Register</button>
       </form>
     </div>
   );
