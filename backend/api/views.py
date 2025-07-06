@@ -1,11 +1,24 @@
-from rest_framework import generics
-from django.contrib.auth import get_user_model
-from rest_framework.permissions import AllowAny
-from .serializers import UserSerializer
+from rest_framework import viewsets, permissions
+from .models import WorkoutPlan, Exercise, WorkoutLog
+from .serializers import WorkoutPlanSerializer, ExerciseSerializer, WorkoutLogSerializer
 
-User = get_user_model()
+class WorkoutPlanViewSet(viewsets.ModelViewSet):
+    queryset = WorkoutPlan.objects.all()
+    serializer_class = WorkoutPlanSerializer
+    permission_classes = [permissions.IsAuthenticated]
 
-class RegisterView(generics.CreateAPIView):
-    queryset = User.objects.all()
-    permission_classes = [AllowAny]
-    serializer_class = UserSerializer
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
+
+class ExerciseViewSet(viewsets.ModelViewSet):
+    queryset = Exercise.objects.all()
+    serializer_class = ExerciseSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+class WorkoutLogViewSet(viewsets.ModelViewSet):
+    queryset = WorkoutLog.objects.all()
+    serializer_class = WorkoutLogSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
