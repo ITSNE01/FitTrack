@@ -1,10 +1,9 @@
-import React, { useState, useContext } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from './AuthContext';
+import axios from '../api/axios';
 
 const Login: React.FC = () => {
   const navigate = useNavigate();
-  const { login } = useAuth();
 
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
@@ -12,11 +11,22 @@ const Login: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const success = await login(username, password);
-    if (success) {
+    setError(null);
+
+    try {
+      const response = await axios.post('/token/', { username, password });
+
+      const { access, refresh } = response.data;
+      localStorage.setItem('access_token', access);
+      localStorage.setItem('refresh_token', refresh);
+
       navigate('/dashboard');
-    } else {
-      setError('Invalid username or password.');
+    } catch (err: any) {
+      if (err.response?.status === 401) {
+        setError('Invalid username or password.');
+      } else {
+        setError('Something went wrong. Please try again.');
+      }
     }
   };
 

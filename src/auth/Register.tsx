@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "./AuthContext";
+import axios from "../api/axios"; // updated import
 
 const Register = () => {
   const [username, setUsername] = useState("");
@@ -8,21 +8,28 @@ const Register = () => {
   const [error, setError] = useState("");
 
   const navigate = useNavigate();
-  const { register } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
 
     try {
-      const success = await register(username, password);
-      if (success) {
-        navigate("/dashboard");
+      const response = await axios.post("/auth/register/", {
+        username,
+        password,
+      });
+
+      if (response.status === 201) {
+        navigate("/login");
       } else {
-        setError("Registration failed. Try again.");
+        setError("Registration failed.");
       }
-    } catch (err) {
-      setError("Something went wrong.");
+    } catch (err: any) {
+      if (err.response?.data?.error) {
+        setError(err.response.data.error);
+      } else {
+        setError("Something went wrong.");
+      }
     }
   };
 
