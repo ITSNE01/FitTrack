@@ -1,17 +1,23 @@
-from rest_framework import serializers
-from django.contrib.auth import get_user_model
+from .models import Exercise, WorkoutPlan, WorkoutExercise, WorkoutLog
 
-User = get_user_model()
+class ExerciseSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Exercise
+        fields = '__all__'
 
-class UserSerializer(serializers.ModelSerializer):
-    password = serializers.CharField(write_only=True)
+class WorkoutExerciseSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = WorkoutExercise
+        fields = '__all__'
+
+class WorkoutPlanSerializer(serializers.ModelSerializer):
+    exercises = WorkoutExerciseSerializer(source='workoutexercise_set', many=True, read_only=True)
 
     class Meta:
-        model = User
-        fields = ['id', 'username', 'password']
+        model = WorkoutPlan
+        fields = ['id', 'title', 'description', 'exercises']
 
-    def create(self, validated_data):
-        return User.objects.create_user(
-            username=validated_data['username'],
-            password=validated_data['password']
-        )
+class WorkoutLogSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = WorkoutLog
+        fields = '__all__'
