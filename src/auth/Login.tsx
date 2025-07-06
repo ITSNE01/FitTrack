@@ -1,64 +1,96 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "./AuthContext";
-import logo from "../assets/FitTrack-logobw.png";
+import loginBg from "../assets/images/FitTrack-LoginBg.png";
+import whiteLogo from "../assets/images/FitTrack-LogoW.png";
 
-const Login: React.FC = () => {
+const Login = () => {
+  const { login } = useAuth();
+  const navigate = useNavigate();
+
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
-  const navigate = useNavigate();
-  const { login } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
     const success = await login(username, password);
-    if (success) {
-      navigate("/dashboard");
-    } else {
-      setError("Invalid username or password.");
-    }
+    if (success) navigate("/dashboard");
+    else setError("Invalid username or password.");
   };
 
   return (
-    <div className="d-flex align-items-center justify-content-center min-vh-100 bg-light">
-      <div className="text-center w-100" style={{ maxWidth: "400px", padding: "2rem" }}>
-        <div className="d-flex justify-content-end mb-3">
-          <img src={logo} alt="FitTrack Logo" style={{ width: "80px" }} />
-        </div>
-        <h1 className="fw-bold">Hi !</h1>
-        <h2 className="fw-bold mb-3">Welcome</h2>
-        <p className="text-muted mb-4">I'm waiting for you, please enter your detail</p>
+    <div
+      style={{
+        backgroundImage: `url(${loginBg})`,
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        minHeight: "100vh",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        position: "relative",
+      }}
+    >
+      <img
+        src={whiteLogo}
+        alt="FitTrack Logo"
+        style={{
+          position: "absolute",
+          bottom: "20px",
+          left: "20px",
+          width: "100px",
+        }}
+      />
+
+      <div
+        className="p-5"
+        style={{
+          backgroundColor: "#fff",
+          borderRadius: "24px",
+          maxWidth: "400px",
+          width: "100%",
+          boxShadow: "0 0 20px rgba(0,0,0,0.1)",
+        }}
+      >
+        <h1 className="fw-bold mb-0" style={{ fontSize: "2.5rem" }}>
+          Hi !
+        </h1>
+        <h2 className="fw-bold mb-2" style={{ fontSize: "2.5rem" }}>
+          Welcome
+        </h2>
+        <p className="text-muted mb-4">I’m waiting for you, please enter your detail</p>
+
         {error && <div className="alert alert-danger">{error}</div>}
+
         <form onSubmit={handleSubmit}>
-          <div className="mb-3">
-            <input
-              type="text"
-              placeholder="Username, Email or Phone Number"
-              className="form-control"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              required
-            />
-          </div>
-          <div className="mb-3">
-            <input
-              type="password"
-              placeholder="Password"
-              className="form-control"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
-          </div>
-          <button type="submit" className="btn btn-dark w-100 fw-bold">Log In</button>
+          <input
+            type="text"
+            className="form-control mb-3"
+            placeholder="Username, Email or Phone Number"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            required
+          />
+          <input
+            type="password"
+            className="form-control mb-4"
+            placeholder="Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+          />
+          <button type="submit" className="btn btn-dark w-100">
+            Log In
+          </button>
         </form>
-        <p className="mt-4 text-muted">
-          Don't have an account?{" "}
-          <span className="fw-bold text-dark" style={{ cursor: "pointer" }} onClick={() => navigate("/register")}>
+
+        <p className="mt-4 text-center text-muted">
+          Don’t have an account?{" "}
+          <Link to="/register" className="fw-bold text-dark">
             Sign Up
-          </span>
+          </Link>
         </p>
       </div>
     </div>
