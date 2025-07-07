@@ -11,7 +11,7 @@ class Exercise(models.Model):
         return self.name
 
 class WorkoutPlan(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='workout_plans')
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='api_workout_plans')
     title = models.CharField(max_length=100)
     description = models.TextField(blank=True)
     exercises = models.ManyToManyField(Exercise, through='WorkoutExercise')
@@ -29,7 +29,7 @@ class WorkoutExercise(models.Model):
         return f"{self.exercise.name} ({self.sets}x{self.reps})"
 
 class WorkoutLog(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='api_workout_logs')
     workout_plan = models.ForeignKey(WorkoutPlan, on_delete=models.CASCADE)
     date = models.DateField(auto_now_add=True)
     notes = models.TextField(blank=True)
