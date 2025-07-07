@@ -11,7 +11,7 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-const API_URL = "http://localhost:8000/api";
+const API_URL = "http://127.0.0.1:8000/api";
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<any>(null);
@@ -19,17 +19,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   useEffect(() => {
     const storedUser = localStorage.getItem("fittrack_user");
-    if (storedUser) {
-      const parsed = JSON.parse(storedUser);
-      setUser(parsed);
-      axios.defaults.headers.common["Authorization"] = `Bearer ${parsed.access}`;
-    }
+    if (storedUser) setUser(JSON.parse(storedUser));
     setLoading(false);
   }, []);
 
   const login = async (username: string, password: string): Promise<boolean> => {
     try {
-      const response = await axios.post(`${API_URL}/token/`, {
+      const response = await axios.post(`${API_URL}/auth/token/`, {
         username,
         password,
       });
@@ -42,8 +38,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       setUser(userData);
       localStorage.setItem("fittrack_user", JSON.stringify(userData));
-      axios.defaults.headers.common["Authorization"] = `Bearer ${userData.access}`;
-
       return true;
     } catch (error) {
       console.error("Login failed:", error);
@@ -53,15 +47,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const register = async (username: string, password: string): Promise<boolean> => {
     try {
-      const res = await axios.post(`${API_URL}/auth/register/`, {
-        username,
-        password,
-      });
-
-      if (res.status === 201) {
-        return await login(username, password); // Auto-login on success
-      }
-      return false;
+      await axios.post(`${API_URL}/auth/register/`, { username, password });
+      return await login(username, password); // Auto-login after register
     } catch (error) {
       console.error("Registration failed:", error);
       return false;
@@ -71,7 +58,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const logout = () => {
     setUser(null);
     localStorage.removeItem("fittrack_user");
-    delete axios.defaults.headers.common["Authorization"];
   };
 
   return (
