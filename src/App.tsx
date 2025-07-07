@@ -1,6 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './auth/AuthContext';
-import { ToastProvider } from '@/components/ui/use-toast';
+import { ToastProvider } from './components/ui/use-toast';
 
 import Login from './auth/Login';
 import Register from './auth/Register';

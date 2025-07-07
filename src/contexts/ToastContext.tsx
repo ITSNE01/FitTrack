@@ -1,20 +1,22 @@
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useState, ReactNode } from 'react';
 
-interface Toast {
+type ToastType = 'success' | 'error' | 'info';
+
+interface ToastState {
   message: string;
-  type: 'success' | 'error' | 'info';
+  type: ToastType;
   show: boolean;
 }
 
 interface ToastContextType {
-  toast: Toast;
-  showToast: (message: string, type: 'success' | 'error' | 'info') => void;
+  toast: ToastState;
+  showToast: (message: string, type?: ToastType) => void;
   hideToast: () => void;
 }
 
 const ToastContext = createContext<ToastContextType | undefined>(undefined);
 
-export const useToast = () => {
+export const useToast = (): ToastContextType => {
   const context = useContext(ToastContext);
   if (!context) {
     throw new Error('useToast must be used within a ToastProvider');
@@ -22,15 +24,17 @@ export const useToast = () => {
   return context;
 };
 
-export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [toast, setToast] = useState<Toast>({
+export const ToastProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+  const [toast, setToast] = useState<ToastState>({
     message: '',
     type: 'info',
     show: false
   });
 
-  const showToast = (message: string, type: 'success' | 'error' | 'info') => {
+  const showToast = (message: string, type: ToastType = 'info') => {
     setToast({ message, type, show: true });
+
+    // Auto-hide after 4 seconds
     setTimeout(() => {
       setToast(prev => ({ ...prev, show: false }));
     }, 4000);
