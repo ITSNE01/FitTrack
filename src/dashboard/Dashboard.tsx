@@ -75,8 +75,8 @@ const Dashboard: React.FC = () => {
         })
       ]);
 
-      const plans = plansRes.data;
-      const logs = logsRes.data;
+      const plans = Array.isArray(plansRes.data) ? plansRes.data : plansRes.data.results;
+      const logs = Array.isArray(logsRes.data) ? logsRes.data : logsRes.data.results;
 
       setWorkoutPlans(plans);
       setWorkoutLogs(logs);
@@ -197,7 +197,7 @@ const Dashboard: React.FC = () => {
           buttonText="Log Your First Workout"
           route="/workout-log"
           icon={<Award />}
-          renderItem={(log) => (
+          renderItem={(log: WorkoutLog) => (
             <div className="d-flex justify-content-between align-items-start">
               <div>
                 <h6 className="mb-1">{log.workout_plan.title}</h6>
@@ -216,7 +216,7 @@ const Dashboard: React.FC = () => {
           buttonText="Create Your First Plan"
           route="/workout-plans/new"
           icon={<Dumbbell />}
-          renderItem={(plan) => (
+          renderItem={(plan: WorkoutPlan) => (
             <div className="d-flex justify-content-between align-items-start">
               <div>
                 <h6 className="mb-1">{plan.title}</h6>
@@ -251,13 +251,14 @@ const RecentList = ({ title, items, emptyMessage, buttonText, route, icon, rende
         <Link to={route.replace('/new', '')} className="btn btn-sm btn-outline-primary">View All</Link>
       </div>
       <div className="card-body">
-        {items.length === 0 ? (
+        {Array.isArray(items) && items.length === 0 ? (
           <div className="empty-state text-center">
             {icon}
             <p>{emptyMessage}</p>
             <Link to={route} className="btn btn-primary">{buttonText}</Link>
           </div>
         ) : (
+          Array.isArray(items) &&
           items.slice(0, 5).map((item: any) => (
             <div key={item.id} className="mb-3">{renderItem(item)}</div>
           ))
