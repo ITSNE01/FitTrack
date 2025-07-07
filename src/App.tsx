@@ -1,12 +1,12 @@
 import React from 'react';
-import { Routes, Route, Navigate } from 'react-router-dom';
+import { Routes, Route, Navigate, BrowserRouter as Router } from 'react-router-dom';
 
+import { AuthProvider, useAuth } from './auth/AuthContext';
 import Navbar from './components/Navbar';
 import NotFound from './components/NotFound';
 
 import Login from './auth/Login';
 import Register from './auth/Register';
-import { AuthProvider, useAuth } from './auth/AuthContext';
 
 import Dashboard from './dashboard/Dashboard';
 import WorkoutPlans from './workouts/WorkoutPlans';
@@ -34,11 +34,11 @@ function AppContent() {
       {user && <Navbar />}
 
       <Routes>
-        {/* Public routes */}
+        {/* Public Routes */}
         {!user && <Route path="/login" element={<Login />} />}
         {!user && <Route path="/register" element={<Register />} />}
 
-        {/* Protected routes */}
+        {/* Protected Routes */}
         {user && <Route path="/dashboard" element={<Dashboard />} />}
         {user && <Route path="/workout-plans" element={<WorkoutPlans />} />}
         {user && <Route path="/workout-plans/new" element={<WorkoutForm />} />}
@@ -46,7 +46,7 @@ function AppContent() {
         {user && <Route path="/workout-log" element={<WorkoutLog />} />}
         {user && <Route path="/workout-history" element={<WorkoutHistory />} />}
 
-        {/* Redirection based on login status */}
+        {/* Fallback & Redirection */}
         <Route path="/" element={<Navigate to={user ? '/dashboard' : '/login'} />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
@@ -57,7 +57,9 @@ function AppContent() {
 function App() {
   return (
     <AuthProvider>
-      <AppContent />
+      <Router>
+        <AppContent />
+      </Router>
     </AuthProvider>
   );
 }

@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from "../auth/AuthContext";
-import { Calendar, Target, TrendingUp, Plus, Dumbbell, Clock, Award } from 'lucide-react';
+import {
+  Calendar, Target, TrendingUp, Plus, Dumbbell, Clock, Award
+} from 'lucide-react';
 import { Line, Bar } from 'react-chartjs-2';
 import {
   Chart as ChartJS,
@@ -62,36 +64,43 @@ const Dashboard: React.FC = () => {
 
   const fetchDashboardData = async () => {
     try {
-      const [plansResponse, logsResponse] = await Promise.all([
-        axios.get('http://localhost:8000/api/workout-plans/'),
-        axios.get('http://localhost:8000/api/workout-logs/')
+      const token = user?.access;
+
+      const [plansRes, logsRes] = await Promise.all([
+        axios.get('http://localhost:8000/api/workout-plans/', {
+          headers: { Authorization: `Bearer ${token}` }
+        }),
+        axios.get('http://localhost:8000/api/workout-logs/', {
+          headers: { Authorization: `Bearer ${token}` }
+        })
       ]);
 
-      setWorkoutPlans(plansResponse.data);
-      setWorkoutLogs(logsResponse.data);
+      const plans = plansRes.data;
+      const logs = logsRes.data;
 
-      // Calculate stats
-      const totalWorkouts = logsResponse.data.length;
-      const totalPlans = plansResponse.data.length;
+      setWorkoutPlans(plans);
+      setWorkoutLogs(logs);
+
       const weekStart = startOfWeek(new Date());
       const weekEnd = endOfWeek(new Date());
-      const weeklyWorkouts = logsResponse.data.filter((log: WorkoutLog) => {
+
+      const weeklyWorkouts = logs.filter((log: WorkoutLog) => {
         const logDate = new Date(log.date);
         return logDate >= weekStart && logDate <= weekEnd;
       }).length;
 
-      const averageDuration = logsResponse.data.length > 0 
-        ? logsResponse.data.reduce((sum: number, log: WorkoutLog) => sum + log.duration, 0) / logsResponse.data.length
+      const avgDuration = logs.length > 0
+        ? logs.reduce((sum: number, log: WorkoutLog) => sum + log.duration, 0) / logs.length
         : 0;
 
       setStats({
-        totalWorkouts,
-        totalPlans,
+        totalWorkouts: logs.length,
+        totalPlans: plans.length,
         weeklyWorkouts,
-        averageDuration
+        averageDuration: avgDuration
       });
-    } catch (error) {
-      console.error('Error fetching dashboard data:', error);
+    } catch (err) {
+      console.error("Dashboard fetch error:", err);
     } finally {
       setLoading(false);
     }
@@ -99,118 +108,68 @@ const Dashboard: React.FC = () => {
 
   const workoutFrequencyData = {
     labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
-    datasets: [
-      {
-        label: 'Workouts',
-        data: [2, 1, 3, 2, 1, 2, 1],
-        borderColor: 'rgb(99, 102, 241)',
-        backgroundColor: 'rgba(99, 102, 241, 0.1)',
-        tension: 0.4,
-      },
-    ],
+    datasets: [{
+      label: 'Workouts',
+      data: [2, 1, 3, 2, 1, 2, 1],
+      borderColor: 'rgb(99, 102, 241)',
+      backgroundColor: 'rgba(99, 102, 241, 0.1)',
+      tension: 0.4
+    }],
   };
 
   const workoutTypesData = {
     labels: ['Strength', 'Cardio', 'Flexibility', 'Sports'],
-    datasets: [
-      {
-        label: 'Workouts',
-        data: [12, 8, 3, 5],
-        backgroundColor: [
-          'rgba(99, 102, 241, 0.8)',
-          'rgba(236, 72, 153, 0.8)',
-          'rgba(245, 158, 11, 0.8)',
-          'rgba(16, 185, 129, 0.8)',
-        ],
-      },
-    ],
+    datasets: [{
+      label: 'Workouts',
+      data: [12, 8, 3, 5],
+      backgroundColor: [
+        'rgba(99, 102, 241, 0.8)',
+        'rgba(236, 72, 153, 0.8)',
+        'rgba(245, 158, 11, 0.8)',
+        'rgba(16, 185, 129, 0.8)',
+      ],
+    }],
   };
 
   const chartOptions = {
     responsive: true,
     plugins: {
-      legend: {
-        position: 'top' as const,
-      },
+      legend: { position: 'top' as const }
     },
     scales: {
-      y: {
-        beginAtZero: true,
-      },
-    },
+      y: { beginAtZero: true }
+    }
   };
 
   if (loading) {
     return (
       <div className="d-flex justify-content-center align-items-center min-vh-100">
-        <div className="loading-spinner"></div>
+        <div className="spinner-border text-primary" role="status">
+          <span className="visually-hidden">Loading...</span>
+        </div>
       </div>
     );
   }
 
   return (
     <div className="container mt-4">
-      <div className="row">
-        <div className="col-12">
-          <div className="d-flex justify-content-between align-items-center mb-4">
-            <div>
-              <h1 className="h2 mb-2">Welcome back, {user?.username}!</h1>
-              <p className="text-muted">Here's your fitness overview</p>
-            </div>
-            <Link to="/workout-log" className="btn btn-gradient-primary">
-              <Plus size={16} className="me-2" />
-              Log Workout
-            </Link>
-          </div>
+      {/* Header */}
+      <div className="d-flex justify-content-between align-items-center mb-4">
+        <div>
+          <h1 className="h2 mb-1">Welcome back, {user?.username}!</h1>
+          <p className="text-muted">Here's your fitness overview</p>
         </div>
+        <Link to="/workout-log" className="btn btn-gradient-primary">
+          <Plus size={16} className="me-2" /> Log Workout
+        </Link>
       </div>
 
-      {/* Stats Cards */}
+      {/* Stat Cards */}
       <div className="row mb-4">
-        <div className="col-md-3 col-sm-6 mb-3">
-          <div className="stats-card">
-            <div className="d-flex align-items-center justify-content-between">
-              <div>
-                <p className="text-muted mb-1">Total Workouts</p>
-                <div className="stats-number">{stats.totalWorkouts}</div>
-              </div>
-              <Target className="text-primary" size={32} />
-            </div>
-          </div>
-        </div>
-        <div className="col-md-3 col-sm-6 mb-3">
-          <div className="stats-card">
-            <div className="d-flex align-items-center justify-content-between">
-              <div>
-                <p className="text-muted mb-1">Workout Plans</p>
-                <div className="stats-number">{stats.totalPlans}</div>
-              </div>
-              <Dumbbell className="text-primary" size={32} />
-            </div>
-          </div>
-        </div>
-        <div className="col-md-3 col-sm-6 mb-3">
-          <div className="stats-card">
-            <div className="d-flex align-items-center justify-content-between">
-              <div>
-                <p className="text-muted mb-1">This Week</p>
-                <div className="stats-number">{stats.weeklyWorkouts}</div>
-              </div>
-              <Calendar className="text-primary" size={32} />
-            </div>
-          </div>
-        </div>
-        <div className="col-md-3 col-sm-6 mb-3">
-          <div className="stats-card">
-            <div className="d-flex align-items-center justify-content-between">
-              <div>
-                <p className="text-muted mb-1">Avg Duration</p>
-                <div className="stats-number">{Math.round(stats.averageDuration)}<span className="fs-6">min</span></div>
-              </div>
-              <Clock className="text-primary" size={32} />
-            </div>
-          </div>
-        </div>
+        <StatsCard label="Total Workouts" value={stats.totalWorkouts} icon={<Target size={32} />} />
+        <StatsCard label="Workout Plans" value={stats.totalPlans} icon={<Dumbbell size={32} />} />
+        <StatsCard label="This Week" value={stats.weeklyWorkouts} icon={<Calendar size={32} />} />
+        <StatsCard label="Avg Duration" value={`${Math.round(stats.averageDuration)} min`} icon={<Clock size={32} />} />
       </div>
 
       {/* Charts */}
@@ -229,84 +188,83 @@ const Dashboard: React.FC = () => {
         </div>
       </div>
 
-      {/* Recent Activity */}
+      {/* Recent Workouts & Plans */}
       <div className="row">
-        <div className="col-lg-6 mb-4">
-          <div className="card">
-            <div className="card-header d-flex justify-content-between align-items-center">
-              <h5 className="mb-0">Recent Workouts</h5>
-              <Link to="/workout-history" className="btn btn-sm btn-outline-primary">
-                View All
-              </Link>
+        <RecentList
+          title="Recent Workouts"
+          items={workoutLogs}
+          emptyMessage="No workouts logged yet"
+          buttonText="Log Your First Workout"
+          route="/workout-log"
+          icon={<Award />}
+          renderItem={(log) => (
+            <div className="d-flex justify-content-between align-items-start">
+              <div>
+                <h6 className="mb-1">{log.workout_plan.title}</h6>
+                <p className="text-muted small mb-0">
+                  {format(new Date(log.date), 'MMM dd, yyyy')} • {log.duration} min
+                </p>
+              </div>
+              <TrendingUp className="text-success" size={16} />
             </div>
-            <div className="card-body">
-              {workoutLogs.length === 0 ? (
-                <div className="empty-state">
-                  <Award />
-                  <p>No workouts logged yet</p>
-                  <Link to="/workout-log" className="btn btn-primary">
-                    Log Your First Workout
-                  </Link>
-                </div>
-              ) : (
-                workoutLogs.slice(0, 5).map((log) => (
-                  <div key={log.id} className="workout-history-item">
-                    <div className="d-flex justify-content-between align-items-start">
-                      <div>
-                        <h6 className="mb-1">{log.workout_plan.title}</h6>
-                        <p className="text-muted small mb-0">
-                          {format(new Date(log.date), 'MMM dd, yyyy')} • {log.duration} min
-                        </p>
-                      </div>
-                      <TrendingUp className="text-success" size={16} />
-                    </div>
-                  </div>
-                ))
-              )}
+          )}
+        />
+        <RecentList
+          title="Your Workout Plans"
+          items={workoutPlans}
+          emptyMessage="No workout plans created yet"
+          buttonText="Create Your First Plan"
+          route="/workout-plans/new"
+          icon={<Dumbbell />}
+          renderItem={(plan) => (
+            <div className="d-flex justify-content-between align-items-start">
+              <div>
+                <h6 className="mb-1">{plan.title}</h6>
+                <p className="text-muted small mb-0">{plan.exercises.length} exercises</p>
+              </div>
+              <Link to={`/workout-plans/${plan.id}/edit`} className="btn btn-sm btn-outline-primary">Edit</Link>
             </div>
-          </div>
-        </div>
-        
-        <div className="col-lg-6 mb-4">
-          <div className="card">
-            <div className="card-header d-flex justify-content-between align-items-center">
-              <h5 className="mb-0">Your Workout Plans</h5>
-              <Link to="/workout-plans" className="btn btn-sm btn-outline-primary">
-                View All
-              </Link>
-            </div>
-            <div className="card-body">
-              {workoutPlans.length === 0 ? (
-                <div className="empty-state">
-                  <Dumbbell />
-                  <p>No workout plans created yet</p>
-                  <Link to="/workout-plans/new" className="btn btn-primary">
-                    Create Your First Plan
-                  </Link>
-                </div>
-              ) : (
-                workoutPlans.slice(0, 5).map((plan) => (
-                  <div key={plan.id} className="workout-plan-card">
-                    <div className="d-flex justify-content-between align-items-start">
-                      <div>
-                        <h6 className="mb-1">{plan.title}</h6>
-                        <p className="text-muted small mb-0">
-                          {plan.exercises.length} exercises
-                        </p>
-                      </div>
-                      <Link to={`/workout-plans/${plan.id}/edit`} className="btn btn-sm btn-outline-primary">
-                        Edit
-                      </Link>
-                    </div>
-                  </div>
-                ))
-              )}
-            </div>
-          </div>
-        </div>
+          )}
+        />
       </div>
     </div>
   );
 };
+
+const StatsCard = ({ label, value, icon }: { label: string; value: any; icon: React.ReactNode }) => (
+  <div className="col-md-3 col-sm-6 mb-3">
+    <div className="stats-card d-flex align-items-center justify-content-between">
+      <div>
+        <p className="text-muted mb-1">{label}</p>
+        <div className="stats-number">{value}</div>
+      </div>
+      {icon}
+    </div>
+  </div>
+);
+
+const RecentList = ({ title, items, emptyMessage, buttonText, route, icon, renderItem }: any) => (
+  <div className="col-lg-6 mb-4">
+    <div className="card">
+      <div className="card-header d-flex justify-content-between align-items-center">
+        <h5 className="mb-0">{title}</h5>
+        <Link to={route.replace('/new', '')} className="btn btn-sm btn-outline-primary">View All</Link>
+      </div>
+      <div className="card-body">
+        {items.length === 0 ? (
+          <div className="empty-state text-center">
+            {icon}
+            <p>{emptyMessage}</p>
+            <Link to={route} className="btn btn-primary">{buttonText}</Link>
+          </div>
+        ) : (
+          items.slice(0, 5).map((item: any) => (
+            <div key={item.id} className="mb-3">{renderItem(item)}</div>
+          ))
+        )}
+      </div>
+    </div>
+  </div>
+);
 
 export default Dashboard;
