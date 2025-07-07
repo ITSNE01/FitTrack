@@ -1,13 +1,11 @@
-import React from 'react';
-import { Routes, Route, Navigate } from 'react-router-dom';
-
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './auth/AuthContext';
-import Navbar from './components/Navbar';
-import NotFound from './components/NotFound';
+import { ToastProvider } from '@/components/ui/use-toast';
 
 import Login from './auth/Login';
 import Register from './auth/Register';
-
+import Navbar from './components/Navbar';
+import NotFound from './pages/NotFound';
 import Dashboard from './dashboard/Dashboard';
 import WorkoutPlans from './workouts/WorkoutPlans';
 import WorkoutForm from './workouts/WorkoutForm';
@@ -16,8 +14,6 @@ import WorkoutHistory from './workouts/WorkoutHistory';
 
 function AppContent() {
   const { user, loading } = useAuth();
-
-  console.log("Auth state →", { user, loading });
 
   if (loading) {
     return (
@@ -30,34 +26,30 @@ function AppContent() {
   }
 
   return (
-    <>
+    <ToastProvider>
       {user && <Navbar />}
-
       <Routes>
-        {/* Public Routes */}
         {!user && <Route path="/login" element={<Login />} />}
         {!user && <Route path="/register" element={<Register />} />}
-
-        {/* Protected Routes */}
         {user && <Route path="/dashboard" element={<Dashboard />} />}
         {user && <Route path="/workout-plans" element={<WorkoutPlans />} />}
         {user && <Route path="/workout-plans/new" element={<WorkoutForm />} />}
         {user && <Route path="/workout-plans/:id/edit" element={<WorkoutForm />} />}
         {user && <Route path="/workout-log" element={<WorkoutLog />} />}
         {user && <Route path="/workout-history" element={<WorkoutHistory />} />}
-
-        {/* Fallback & Redirection */}
         <Route path="/" element={<Navigate to={user ? '/dashboard' : '/login'} />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
-    </>
+    </ToastProvider>
   );
 }
 
 function App() {
   return (
     <AuthProvider>
-      <AppContent />
+      <BrowserRouter>
+        <AppContent />
+      </BrowserRouter>
     </AuthProvider>
   );
 }
