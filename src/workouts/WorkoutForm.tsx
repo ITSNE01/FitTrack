@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Plus, Trash2, Save, ArrowLeft } from 'lucide-react';
 import { useToast } from '../contexts/ToastContext';
+import { useAuth } from '../auth/AuthContext';
 import axios from 'axios';
 
 interface Exercise {
@@ -23,6 +24,7 @@ const WorkoutForm: React.FC = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { showToast } = useToast();
+  const { user } = useAuth();
   const [loading, setLoading] = useState(false);
   const [plan, setPlan] = useState<WorkoutPlan>({
     title: '',
@@ -38,7 +40,11 @@ const WorkoutForm: React.FC = () => {
 
   const fetchWorkoutPlan = async () => {
     try {
-      const response = await axios.get(`http://localhost:8000/api/workout-plans/${id}/`);
+      const response = await axios.get(`http://localhost:8000/api/workout-plans/${id}/`, {
+        headers: {
+          Authorization: `Bearer ${user?.access}`,
+        },
+      });
       setPlan(response.data);
     } catch (error) {
       showToast('Error fetching workout plan', 'error');
@@ -56,10 +62,18 @@ const WorkoutForm: React.FC = () => {
     setLoading(true);
     try {
       if (id) {
-        await axios.put(`http://localhost:8000/api/workout-plans/${id}/`, plan);
+        await axios.put(`http://localhost:8000/api/workout-plans/${id}/`, plan, {
+          headers: {
+            Authorization: `Bearer ${user?.access}`,
+          },
+        });
         showToast('Workout plan updated successfully', 'success');
       } else {
-        await axios.post('http://localhost:8000/api/workout-plans/', plan);
+        await axios.post('http://localhost:8000/api/workout-plans/', plan, {
+          headers: {
+            Authorization: `Bearer ${user?.access}`,
+          },
+        });
         showToast('Workout plan created successfully', 'success');
       }
       navigate('/workout-plans');

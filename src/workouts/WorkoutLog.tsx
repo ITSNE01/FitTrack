@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Calendar, Clock, Save, ArrowLeft } from 'lucide-react';
 import { useToast } from '../contexts/ToastContext';
+import { useAuth } from '../auth/AuthContext';
 import axios from 'axios';
 
 interface Exercise {
@@ -30,6 +31,7 @@ interface ExerciseLog {
 const WorkoutLog: React.FC = () => {
   const navigate = useNavigate();
   const { showToast } = useToast();
+  const { user } = useAuth();
   const [workoutPlans, setWorkoutPlans] = useState<WorkoutPlan[]>([]);
   const [selectedPlan, setSelectedPlan] = useState<WorkoutPlan | null>(null);
   const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
@@ -43,7 +45,11 @@ const WorkoutLog: React.FC = () => {
 
   const fetchWorkoutPlans = async () => {
     try {
-      const response = await axios.get('http://localhost:8000/api/workout-plans/');
+      const response = await axios.get('http://localhost:8000/api/workout-plans/', {
+        headers: {
+          Authorization: `Bearer ${user?.access}`,
+        },
+      });
       setWorkoutPlans(response.data);
     } catch (error) {
       showToast('Error fetching workout plans', 'error');
@@ -80,11 +86,16 @@ const WorkoutLog: React.FC = () => {
     setLoading(true);
     try {
       await axios.post('http://localhost:8000/api/workout-logs/', {
-        workout_plan: selectedPlan.id,
+        workout_plan_id: selectedPlan.id,
         date,
         duration,
         exercises: exerciseLogs
+      }, {
+        headers: {
+          Authorization: `Bearer ${user?.access}`,
+        },
       });
+
       showToast('Workout logged successfully!', 'success');
       navigate('/workout-history');
     } catch (error) {
@@ -166,7 +177,7 @@ const WorkoutLog: React.FC = () => {
                   <div className="mb-4">
                     <h5>Log Exercises</h5>
                     <p className="text-muted">{selectedPlan.description}</p>
-                    
+
                     {exerciseLogs.map((log, index) => (
                       <div key={index} className="exercise-log-card mb-3">
                         <h6 className="mb-3">{log.exercise_name}</h6>
