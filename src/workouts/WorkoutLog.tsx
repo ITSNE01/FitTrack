@@ -2,8 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Calendar, Clock, Save, ArrowLeft } from 'lucide-react';
 import { useToast } from '../contexts/ToastContext';
-import { useAuth } from '../auth/AuthContext';
 import axios from 'axios';
+import { useAuth } from '../auth/AuthContext';
 
 interface Exercise {
   name: string;
@@ -45,12 +45,16 @@ const WorkoutLog: React.FC = () => {
 
   const fetchWorkoutPlans = async () => {
     try {
-      const response = await axios.get('http://localhost:8000/api/workout-plans/', {
+      const res = await axios.get('http://localhost:8000/api/workout-plans/', {
         headers: {
-          Authorization: `Bearer ${user?.access}`,
-        },
+          Authorization: `Bearer ${user?.access}`
+        }
       });
-      setWorkoutPlans(response.data);
+      if (Array.isArray(res.data)) {
+        setWorkoutPlans(res.data);
+      } else {
+        setWorkoutPlans([]);
+      }
     } catch (error) {
       showToast('Error fetching workout plans', 'error');
     }
@@ -59,7 +63,7 @@ const WorkoutLog: React.FC = () => {
   const handlePlanSelect = (plan: WorkoutPlan) => {
     setSelectedPlan(plan);
     setExerciseLogs(
-      plan.exercises.map(exercise => ({
+      (plan.exercises || []).map((exercise) => ({
         exercise_name: exercise.name,
         sets_completed: exercise.sets,
         reps_completed: exercise.reps,
@@ -85,17 +89,20 @@ const WorkoutLog: React.FC = () => {
 
     setLoading(true);
     try {
-      await axios.post('http://localhost:8000/api/workout-logs/', {
-        workout_plan_id: selectedPlan.id,
-        date,
-        duration,
-        exercises: exerciseLogs
-      }, {
-        headers: {
-          Authorization: `Bearer ${user?.access}`,
+      await axios.post(
+        'http://localhost:8000/api/workout-logs/',
+        {
+          workout_plan_id: selectedPlan.id,
+          date,
+          duration,
+          exercises: exerciseLogs
         },
-      });
-
+        {
+          headers: {
+            Authorization: `Bearer ${user?.access}`
+          }
+        }
+      );
       showToast('Workout logged successfully!', 'success');
       navigate('/workout-history');
     } catch (error) {
