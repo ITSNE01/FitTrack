@@ -41,9 +41,7 @@ const WorkoutForm: React.FC = () => {
   const fetchWorkoutPlan = async () => {
     try {
       const response = await axios.get(`http://localhost:8000/api/workout-plans/${id}/`, {
-        headers: {
-          Authorization: `Bearer ${user?.access}`,
-        },
+        headers: { Authorization: `Bearer ${user?.access}` }
       });
       setPlan(response.data);
     } catch (error) {
@@ -61,21 +59,20 @@ const WorkoutForm: React.FC = () => {
 
     setLoading(true);
     try {
+      const config = {
+        headers: {
+          Authorization: `Bearer ${user?.access}`,
+        },
+      };
+
       if (id) {
-        await axios.put(`http://localhost:8000/api/workout-plans/${id}/`, plan, {
-          headers: {
-            Authorization: `Bearer ${user?.access}`,
-          },
-        });
+        await axios.put(`http://localhost:8000/api/workout-plans/${id}/`, plan, config);
         showToast('Workout plan updated successfully', 'success');
       } else {
-        await axios.post('http://localhost:8000/api/workout-plans/', plan, {
-          headers: {
-            Authorization: `Bearer ${user?.access}`,
-          },
-        });
+        await axios.post('http://localhost:8000/api/workout-plans/', plan, config);
         showToast('Workout plan created successfully', 'success');
       }
+
       navigate('/workout-plans');
     } catch (error) {
       showToast('Error saving workout plan', 'error');
