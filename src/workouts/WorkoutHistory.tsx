@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Calendar, Clock, TrendingUp, Search, Filter } from 'lucide-react';
 import { useToast } from '../contexts/ToastContext';
+import { useAuth } from '../auth/AuthContext';
 import axios from 'axios';
 import { format } from 'date-fns';
 
@@ -34,6 +35,7 @@ const WorkoutHistory: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [dateFilter, setDateFilter] = useState('');
   const { showToast } = useToast();
+  const { user } = useAuth();
 
   useEffect(() => {
     fetchWorkoutLogs();
@@ -45,7 +47,11 @@ const WorkoutHistory: React.FC = () => {
 
   const fetchWorkoutLogs = async () => {
     try {
-      const response = await axios.get('http://localhost:8000/api/workout-logs/');
+      const response = await axios.get('http://localhost:8000/api/workout-logs/', {
+        headers: {
+          Authorization: `Bearer ${user?.access}`,
+        },
+      });
       setWorkoutLogs(response.data);
     } catch (error) {
       showToast('Error fetching workout history', 'error');
@@ -182,8 +188,7 @@ const WorkoutHistory: React.FC = () => {
           <p>
             {searchTerm || dateFilter 
               ? 'No workouts match your current filters' 
-              : 'Start logging your workouts to see your progress here!'
-            }
+              : 'Start logging your workouts to see your progress here!'}
           </p>
         </div>
       ) : (

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Plus, Edit, Trash2, Calendar, Target } from 'lucide-react';
 import { useToast } from '../contexts/ToastContext';
+import { useAuth } from '../auth/AuthContext';
 import axios from 'axios';
 
 interface Exercise {
@@ -24,6 +25,7 @@ const WorkoutPlans: React.FC = () => {
   const [workoutPlans, setWorkoutPlans] = useState<WorkoutPlan[]>([]);
   const [loading, setLoading] = useState(true);
   const { showToast } = useToast();
+  const { user } = useAuth();
 
   useEffect(() => {
     fetchWorkoutPlans();
@@ -31,7 +33,11 @@ const WorkoutPlans: React.FC = () => {
 
   const fetchWorkoutPlans = async () => {
     try {
-      const response = await axios.get('http://localhost:8000/api/workout-plans/');
+      const response = await axios.get('http://localhost:8000/api/workout-plans/', {
+        headers: {
+          Authorization: `Bearer ${user?.access}`,
+        },
+      });
       setWorkoutPlans(response.data);
     } catch (error) {
       showToast('Error fetching workout plans', 'error');
@@ -43,7 +49,11 @@ const WorkoutPlans: React.FC = () => {
   const handleDelete = async (id: string) => {
     if (window.confirm('Are you sure you want to delete this workout plan?')) {
       try {
-        await axios.delete(`http://localhost:8000/api/workout-plans/${id}/`);
+        await axios.delete(`http://localhost:8000/api/workout-plans/${id}/`, {
+          headers: {
+            Authorization: `Bearer ${user?.access}`,
+          },
+        });
         setWorkoutPlans(workoutPlans.filter(plan => plan.id !== id));
         showToast('Workout plan deleted successfully', 'success');
       } catch (error) {
@@ -129,9 +139,9 @@ const WorkoutPlans: React.FC = () => {
                       </ul>
                     </div>
                   </div>
-                  
+
                   <p className="card-text text-muted mb-3">{plan.description}</p>
-                  
+
                   <div className="mb-3">
                     <div className="d-flex align-items-center text-muted mb-2">
                       <Target size={16} className="me-2" />
@@ -142,7 +152,7 @@ const WorkoutPlans: React.FC = () => {
                       <span>Created {new Date(plan.created_at).toLocaleDateString()}</span>
                     </div>
                   </div>
-                  
+
                   <div className="exercises-preview">
                     <h6 className="mb-2">Exercises:</h6>
                     {plan.exercises.slice(0, 3).map((exercise, index) => (
