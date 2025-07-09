@@ -1,10 +1,16 @@
+<p align="center">
+  <img src="src/assets/images/FitTrack-LogoW.png" alt="FitTrack Logo" width="200" />
+</p>
+
 # FitTrack - Personal Fitness Companion
 
 A complete full-stack fitness tracking application built with Django REST Framework and React. Track your workouts, create custom workout plans, and monitor your fitness progress with beautiful charts and statistics.
 
-## Author
+## ✍️ Author
 
-Rabie Haddar - rabie.haddar1@gmail.com
+**Rabie Haddar** - [rabie.haddar1@gmail.com](mailto:rabie.haddar1@gmail.com)
+
+---
 
 ## Features
 
@@ -136,37 +142,30 @@ The React frontend will be available at `http://localhost:5173`
 ## Project Structure
 
 ```
-fittrack/
+FitTrack/
 ├── backend/
-│   ├── fittrack/
-│   │   ├── settings.py
-│   │   ├── urls.py
-│   │   └── wsgi.py
-│   ├── accounts/
-│   │   ├── models.py
-│   │   ├── serializers.py
-│   │   ├── views.py
-│   │   └── urls.py
-│   ├── workouts/
-│   │   ├── models.py
-│   │   ├── serializers.py
-│   │   ├── views.py
-│   │   └── urls.py
-│   └── requirements.txt
+│ ├── accounts/
+│ ├── workouts/
+│ ├── fittrack/
+│ ├── db.sqlite3
+│ ├── manage.py
+│ └── requirements.txt
+
 ├── src/
-│   ├── components/
-│   │   ├── Dashboard.tsx
-│   │   ├── Login.tsx
-│   │   ├── Register.tsx
-│   │   ├── WorkoutPlans.tsx
-│   │   ├── WorkoutForm.tsx
-│   │   ├── WorkoutLog.tsx
-│   │   └── WorkoutHistory.tsx
-│   ├── contexts/
-│   │   ├── AuthContext.tsx
-│   │   └── ToastContext.tsx
-│   └── App.tsx
+│ ├── assets/
+│ │ └── images/
+│ ├── auth/
+│ ├── components/
+│ ├── contexts/
+│ ├── dashboard/
+│ ├── workouts/
+│ ├── App.tsx
+│ ├── main.tsx
+│ ├── index.css
+│ └── vite.config.ts
+
 ├── package.json
+├── tsconfig.json
 └── README.md
 ```
 
@@ -207,10 +206,6 @@ npm run build
 3. Commit your changes (`git commit -m 'Add amazing feature'`)
 4. Push to the branch (`git push origin feature/amazing-feature`)
 5. Open a Pull Request
-
-## License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
 
 ## Support
 
