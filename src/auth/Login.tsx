@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "./AuthContext";
-import loginBg from "../assets/images/FitTrack-LoginBg.png";
-import whiteLogo from "../assets/images/FitTrack-LogoW.png";
+import loginBg from "../assets/images/FitTrack-LoginBg.jpg";
+import logo from "../assets/images/FitTrack-LogoOfficial.png";
 
 const Login = () => {
   const { login } = useAuth();
@@ -10,6 +10,7 @@ const Login = () => {
 
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -24,43 +25,40 @@ const Login = () => {
 
   return (
     <div
-      className="d-flex min-vh-100 position-relative"
+      className="d-flex min-vh-100"
       style={{
         backgroundImage: `url(${loginBg})`,
         backgroundSize: "cover",
         backgroundPosition: "center",
-        backgroundRepeat: "no-repeat",
-        paddingLeft: "7%", // push content to desired spot
-        paddingRight: "20%",
+        justifyContent: "flex-end",
         alignItems: "center",
-        justifyContent: "flex-end", // shift everything to the right area
+        paddingRight: "5%",
+        paddingLeft: "5%",
       }}
     >
-      {/* White Logo */}
+      {/* Left logo (bottom corner) */}
       <img
-        src={whiteLogo}
-        alt="FitTrack Logo"
+        src={logo}
+        alt="FitTrack"
         style={{
           position: "absolute",
           bottom: "30px",
           left: "30px",
           width: "100px",
-          zIndex: 1,
+          zIndex: 2,
         }}
       />
 
-      {/* Form */}
+      {/* Login Form */}
       <div
         className="bg-white p-5 rounded-4 shadow"
-        style={{
-          width: "100%",
-          maxWidth: "400px",
-          zIndex: 2,
-        }}
+        style={{ width: "100%", maxWidth: "420px" }}
       >
-        <h2 className="fw-bold">Hi !</h2>
-        <h2 className="fw-bold mb-3">Welcome</h2>
-        <p className="text-muted mb-4">I'm waiting for you, please enter your detail</p>
+        <h2 className="fw-bold text-primary">Hi !</h2>
+        <h2 className="fw-bold text-primary mb-3">Welcome</h2>
+        <p className="text-muted mb-4">
+          I'm waiting for you, please enter your detail
+        </p>
 
         {error && <div className="alert alert-danger">{error}</div>}
 
@@ -76,25 +74,37 @@ const Login = () => {
             />
           </div>
 
-          <div className="mb-3">
+          <div className="mb-3 position-relative">
             <input
-              type="password"
+              type={showPassword ? "text" : "password"}
               className="form-control"
               placeholder="Password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
             />
+            <span
+              className="position-absolute top-50 end-0 translate-middle-y px-3 text-muted"
+              role="button"
+              onClick={() => setShowPassword(!showPassword)}
+              style={{ cursor: "pointer" }}
+            >
+              <i className={`bi ${showPassword ? "bi-eye-slash" : "bi-eye"}`}></i>
+            </span>
           </div>
 
-          <button type="submit" className="btn btn-dark w-100 fw-bold">
+          <button
+            type="submit"
+            className="btn w-100 fw-bold"
+            style={{ backgroundColor: "#8B5CF6", color: "#fff" }}
+          >
             Log In
           </button>
         </form>
 
         <p className="text-center mt-4 text-muted">
           Don’t have an account?{" "}
-          <Link to="/register" className="fw-bold text-dark">
+          <Link to="/register" className="fw-bold text-primary">
             Sign Up
           </Link>
         </p>
