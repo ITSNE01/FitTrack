@@ -18,6 +18,7 @@ import {
 } from 'chart.js';
 import axios from 'axios';
 import { format, startOfWeek, endOfWeek } from 'date-fns';
+import logoFlat from '../assets/images/FitTrack-LogoOfficialFlat.png';
 
 ChartJS.register(
   CategoryScale,
@@ -153,15 +154,18 @@ const Dashboard: React.FC = () => {
 
   return (
     <div className="container mt-4">
-      {/* Header */}
+      {/* Top Logo and Button */}
       <div className="d-flex justify-content-between align-items-center mb-4">
-        <div>
-          <h1 className="h2 mb-1">Welcome back, {user?.username}!</h1>
-          <p className="text-muted">Here's your fitness overview</p>
-        </div>
+        <img src={logoFlat} alt="FitTrack Logo" style={{ height: 48 }} />
         <Link to="/workout-log" className="btn btn-gradient-primary">
           <Plus size={16} className="me-2" /> Log Workout
         </Link>
+      </div>
+
+      {/* Greeting */}
+      <div className="mb-4">
+        <h1 className="h2 mb-1">Welcome back, {user?.username}!</h1>
+        <p className="text-muted">Here's your fitness overview</p>
       </div>
 
       {/* Stat Cards */}
